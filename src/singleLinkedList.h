@@ -37,3 +37,6 @@ int LLsearch(struct SinglyLinkedList* list , int postID );
 
 
 void LLprintList(struct SinglyLinkedList* list);
+
+
+struct LLNode *LLnewNode(int postID);

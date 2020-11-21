@@ -20,7 +20,10 @@ int main(int argc, char *argv[]){
     struct SinglyLinkedList* first = LLnewList();
     
     LLinsert(first , 1);
-    LLinsert(first , 2);
+    LLinsert(first , 10);
+
+    LLinsert(first , 5);
+    // pthread_mutex_lock(NULL);
     LLprintList(first);
 
     return 0;
