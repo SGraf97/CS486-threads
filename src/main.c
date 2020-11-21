@@ -1,29 +1,39 @@
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <unistd.h>  //Header file for sleep(). man 3 sleep for details. 
-// #include <pthread.h> 
+#include <pthread.h>
 #include "./main.h"
 #include "./singleLinkedList.h"
 
+int main(int argc, char *argv[])
+{
 
-
-int main(int argc, char *argv[]){
-
-    if(argc < 2){
+    if (argc < 2)
+    {
         printf("Input Error\n");
         return 0;
     }
-    
+
     double N = atoi(argv[1]);
-    double M = 2*N;
+    double M = 2 * N;
+    int i;
 
-    struct SinglyLinkedList* first = LLnewList();
-    
-    LLinsert(first , 1);
-    LLinsert(first , 10);
+    pthread_t threads[(int)N];
 
-    LLinsert(first , 5);
+    struct SinglyLinkedList *first = LLnewList();
+
     // pthread_mutex_lock(NULL);
+    for (i = 0; i < N; i++)
+    {
+        LLargs *args = malloc(sizeof(LLargs));
+        args->list = first;
+        args->postID = i;
+        pthread_create(&(threads[i]), NULL, LLinsert, args);
+    }
+
+    for (i = 0; i < N; i++)
+    {
+
+        pthread_join(threads[i], NULL);
+    }
+
     LLprintList(first);
 
     return 0;

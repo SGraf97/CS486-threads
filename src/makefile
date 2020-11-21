@@ -1,14 +1,14 @@
 all main.o singleLinkedList.o:
-	gcc -c main.c -lpthread -o ../bin/main.o
-	gcc -c singleLinkedList.c -lpthread -o ../bin/singleLinkedList.o
-	gcc -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o
+	gcc  -lpthread singleLinkedList.c -c  -o ../bin/singleLinkedList.o
+	gcc  -lpthread main.c -c  -o ../bin/main.o
+	gcc  -lpthread  -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o
 
 
 
 allDB:
-	gcc -g -c main.c -lpthread -o ../bin/main.o
-	gcc -g -c singleLinkedList.c -lpthread -o ../bin/singleLinkedList.o
-	gcc -g -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o
+	gcc -lpthread  -g -c main.c -lpthread -o ../bin/main.o
+	gcc -lpthread  -g -c singleLinkedList.c -lpthread -o ../bin/singleLinkedList.o
+	gcc -lpthread  -g -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o
 
 
 clean:

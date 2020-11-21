@@ -4,6 +4,8 @@
 #include <unistd.h> 
 
 
+#define NOT_INIT -1
+#define SENTINEL_ID -2
 struct LLNode {
     int postID; //unique Id
     pthread_mutex_t lock;
@@ -15,8 +17,10 @@ struct SinglyLinkedList {
     struct LLNode *head;
     struct LLNode *tail;
 };
-
-
+typedef struct LLargs {
+    struct SinglyLinkedList* list ; 
+    int postID; 
+} LLargs ;
 
 
 // Returns a new list
@@ -25,15 +29,14 @@ struct SinglyLinkedList* LLnewList();
 
 int validate(struct LLNode *pred, struct LLNode *curr) ;
 
-
-
-int LLinsert(struct SinglyLinkedList* list  , int postID  );
+// void* LLinsert(struct SinglyLinkedList* list  , int postID  )
+void* LLinsert(void* args );
 
 
 int LLdelete(struct SinglyLinkedList* list , int postID );
 
 
-int LLsearch(struct SinglyLinkedList* list , int postID );
+int LLsearch(LLargs* args);
 
 
 void LLprintList(struct SinglyLinkedList* list);
