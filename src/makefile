@@ -10,6 +10,11 @@ allDB:
 	gcc -lpthread  -g -c singleLinkedList.c -lpthread -o ../bin/singleLinkedList.o
 	gcc -lpthread  -g -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o
 
+tester: all
+	gcc tester.c -o ../bin/tester
+	../bin/tester 
+	code testlog
+
 
 clean:
 	rm -rf *.o 

@@ -1,0 +1,21 @@
+#include<stdlib.h> 
+#include<unistd.h> 
+#include<stdio.h> 
+#include<fcntl.h> 
+
+
+int main(int argc, char const *argv[])
+{
+
+ 
+    
+    int i;
+    system("rm -rf ./testlog");
+    for(i = 0 ; i < 1000 ; i++){
+       system("../bin/main.out 10 >> testlog");
+      
+    }
+
+
+    return 0;
+}

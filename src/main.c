@@ -22,10 +22,12 @@ int main(int argc, char *argv[])
     // pthread_mutex_lock(NULL);
     for (i = 0; i < N; i++)
     {
-        LLargs *args = malloc(sizeof(LLargs));
-        args->list = first;
-        args->postID = i;
-        pthread_create(&(threads[i]), NULL, LLinsert, args);
+        
+            LLargs *args = malloc(sizeof(LLargs));
+            args->list = first;
+            args->postID =  -i;
+            pthread_create(&(threads[i]), NULL, LLinsert, args);
+        
     }
 
     for (i = 0; i < N; i++)
