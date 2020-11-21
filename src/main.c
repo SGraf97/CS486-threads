@@ -17,10 +17,11 @@ int main(int argc, char *argv[]){
     double N = atoi(argv[1]);
     double M = 2*N;
 
-     LLinsert(NULL , -1 );
-
-
-
+    struct SinglyLinkedList* first = LLnewList();
+    
+    LLinsert(first , 1);
+    LLinsert(first , 2);
+    LLprintList(first);
 
     return 0;
 }

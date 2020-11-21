@@ -34,3 +34,6 @@ int LLdelete(struct SinglyLinkedList* list , int postID );
 
 
 int LLsearch(struct SinglyLinkedList* list , int postID );
+
+
+void LLprintList(struct SinglyLinkedList* list);
