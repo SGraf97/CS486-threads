@@ -12,7 +12,7 @@ int main(int argc, char const *argv[])
     int i;
     system("rm -rf ./testlog");
     for(i = 0 ; i < 1000 ; i++){
-       system("../bin/main.out 10 >> testlog");
+       system("../bin/main.out 2 >> testlog");
       
     }
 

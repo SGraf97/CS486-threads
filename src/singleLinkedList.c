@@ -31,17 +31,15 @@ int LLsearch(LLargs *args)
 struct SinglyLinkedList *LLnewList()
 {
     struct SinglyLinkedList *new = malloc(sizeof(struct SinglyLinkedList));
-    new->head = malloc(sizeof(struct LLNode));
-    new->head->postID = NOT_INIT;
-    new->head->next = LLnewNode(NOT_INIT);
-    new->tail = new->head;
+    
+    
+    
+    new->head = LLnewNode(HEAD__);
+    new->tail = LLnewNode(NOT_INIT);
 
-    /*sentinel*/
-    struct LLNode *sentinel = malloc(sizeof(struct LLNode));
-    sentinel->postID = SENTINEL_ID;
-    sentinel->next = NULL;
-    /*Link sentinel*/
-    new->head->next = sentinel;
+    new->head->next = new->tail; 
+    
+
 
     return new;
 }
@@ -59,14 +57,10 @@ void *LLinsert(void *args)
         pred = ((LLargs *)args)->list->head;
         curr = pred->next;
 
-        while (curr->postID < ((LLargs *)args)->postID)
+      
+        while (curr->postID > ((LLargs *)args)->postID)
         {
-
-            if (pred->postID == NOT_INIT)
-                break;
-
-            if (curr->postID == SENTINEL_ID)
-                break;
+          
             pred = curr;
             curr = curr->next;
         }
@@ -74,32 +68,35 @@ void *LLinsert(void *args)
         pthread_mutex_lock(&pred->lock);
         pthread_mutex_lock(&curr->lock);
 
-        if (pred->postID == NOT_INIT)
-        {
-
-            pred->postID = ((LLargs *)args)->postID;
-            return_flag = 1;
-        }
-        else if (validate(pred, curr) == 1)
+       
+        if (validate(pred, curr) == 1)
         {
             if (((LLargs *)args)->postID == curr->postID)
             {
+                printf("mala");
                 result = 0;
                 return_flag = 1;
             }
             else
             {
                 struct LLNode *new_node = LLnewNode(((LLargs *)args)->postID);
-                new_node->next = curr;
+                // struct LLNode *new_node = malloc(sizeof(struct LLNode));
+             
                 pred->next = new_node;
+                new_node->next = curr;
+                
+                // new_node->postID = ((LLargs*)args)->postID;
+
                 result = 1;
                 return_flag = 1;
+                
+                // pthread_mutex_unlock(&new_node->lock);
             }
         }
         pthread_mutex_unlock(&pred->lock);
         pthread_mutex_unlock(&curr->lock);
         if (return_flag)
-            return result;
+            break;
     }
 }
 
@@ -113,7 +110,7 @@ void LLprintList(struct SinglyLinkedList *list)
         return;
     }
 
-    while (temp->postID != SENTINEL_ID)
+    while (temp != NULL)
     {
         printf("|  %d  | --> ", temp->postID);
         temp = temp->next;
@@ -124,9 +121,9 @@ void LLprintList(struct SinglyLinkedList *list)
 struct LLNode *LLnewNode(int postID)
 {
     struct LLNode *temp = (struct LLNode *)malloc(sizeof(struct LLNode));
+    pthread_mutex_init(&temp->lock, NULL);
     temp->postID = postID;
     temp->next = NULL;
     temp->marked = 0;
-    pthread_mutex_init(&temp->lock, NULL);
     return temp;
 }

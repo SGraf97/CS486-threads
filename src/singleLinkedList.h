@@ -5,17 +5,17 @@
 
 
 #define NOT_INIT -1
-#define SENTINEL_ID -2
+#define HEAD__ -2
+
+struct SinglyLinkedList {
+    struct LLNode *head;
+    struct LLNode *tail;
+};
 struct LLNode {
     int postID; //unique Id
     pthread_mutex_t lock;
     int marked;
     struct LLNode *next;
-};
-
-struct SinglyLinkedList {
-    struct LLNode *head;
-    struct LLNode *tail;
 };
 typedef struct LLargs {
     struct SinglyLinkedList* list ; 

@@ -1,6 +1,6 @@
-#include <pthread.h>
+
 #include "./main.h"
-#include "./singleLinkedList.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -11,32 +11,61 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    double N = atoi(argv[1]);
-    double M = 2 * N;
-    int i;
+    int N = atoi(argv[1]);
+    int M = 2 * N;
+    int i , j; 
 
-    pthread_t threads[(int)N];
 
-    struct SinglyLinkedList *first = LLnewList();
+    int publishers_s = M;
+    int validators_s = N;
+    int admins_s = N;
+
+    pthread_t publishers[publishers_s];
+
+    struct SinglyLinkedList *news = LLnewList();
 
     // pthread_mutex_lock(NULL);
-    for (i = 0; i < N; i++)
+    for (j = 0; j < publishers_s; j++)
     {
         
-            LLargs *args = malloc(sizeof(LLargs));
-            args->list = first;
-            args->postID =  -i;
-            pthread_create(&(threads[i]), NULL, LLinsert, args);
-        
+        p_args *args = malloc(sizeof(p_args));
+        args->list = news;
+        args->N =  N ;
+        args->id = j;
+
+        pthread_create(&(publishers[j]), NULL,publishersRoutine, args);
+    
     }
 
-    for (i = 0; i < N; i++)
+    for (i = 0; i < publishers_s; i++)
     {
 
-        pthread_join(threads[i], NULL);
+        pthread_join(publishers[i], NULL);
     }
 
-    LLprintList(first);
+    LLprintList(news);
 
     return 0;
+}
+
+
+
+
+void* publishersRoutine(void* args){
+    int id= ((p_args*)args)->id;
+    int N = ((p_args*)args)->N;
+    struct SinglyLinkedList*  list = ((p_args*)args)->list;
+
+    int i;
+    LLargs* insert_args = malloc(sizeof(LLargs));
+    for(i = 0; i < N; i++)
+    {
+        insert_args->list = list;
+        insert_args->postID = id + (i*2*N);
+        LLinsert(insert_args);
+    }
+
+
+
+
 }
