@@ -3,6 +3,13 @@
 #include "UnboundedQueue.h"
 
 
+
+pthread_barrier_t barrier_1st_phase_end;
+
+pthread_barrier_t barrier_2nd_phase_start;
+pthread_barrier_t barrier_2nd_phase_end;
+
+
 typedef struct PublishersInsertArguments{
     struct SinglyLinkedList* list;
     int N;
@@ -21,3 +28,6 @@ void* publishersRoutine(void* args);
 
 
 void* LLcounts(void* arg);
+
+
+void Qcounts(int categoriesSize , int N , struct SinglyLinkedList* list);

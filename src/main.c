@@ -1,13 +1,6 @@
 
 #include "./main.h"
 
-pthread_barrier_t barrier_1st_phase_end , barrier_2nd_phase_start , barrier_2nd_phase_end;
-
-
-
-
-
-
 int main(int argc, char *argv[])
 {
 
@@ -19,8 +12,8 @@ int main(int argc, char *argv[])
 
     int N = atoi(argv[1]);
 
-
-    if(N%4 != 0) {
+    if (N % 4 != 0)
+    {
         printf("Input has to be 4 multiplied\n");
         return 1;
     }
@@ -33,36 +26,36 @@ int main(int argc, char *argv[])
     int admins_s = N;
 
     pthread_t publishers[publishers_s];
-    
-    
+
     pthread_barrier_init(&barrier_1st_phase_end, NULL, publishers_s);
     pthread_barrier_init(&barrier_2nd_phase_start, NULL, publishers_s);
     pthread_barrier_init(&barrier_2nd_phase_end, NULL, publishers_s);
 
     struct SinglyLinkedList *news = LLnewList();
 
-
     //init Categories
     Categories = malloc(sizeof(struct queue) * (N / 4));
-    if(Categories == NULL){
-            printf("Fail to allocate memory at INIT categories\n");
-            exit(-1);
+    if (Categories == NULL)
+    {
+        printf("Fail to allocate memory at INIT categories\n");
+        exit(-1);
     }
-    for(i = 0; i < N/4; i ++)
+    for (i = 0; i < N / 4; i++)
     {
         Categories[i] = QnewQueue();
-        if(Categories[i] == NULL) {
-             
+        if (Categories[i] == NULL)
+        {
+
             exit(-1);
         }
     }
 
-   
     for (j = 0; j < publishers_s; j++)
     {
 
         p_args *args = malloc(sizeof(p_args));
-        if(args == NULL){
+        if (args == NULL)
+        {
             printf("Fail to allocate memory at p_args\n");
             exit(-1);
         }
@@ -83,9 +76,9 @@ int main(int argc, char *argv[])
         pthread_join(publishers[i], NULL);
     }
 
-    for(i =0; i < N/4; i++){
-        printQueue(Categories[i],i);
-    }
+    // for(i =0; i < N/4; i++){
+    //     printQueue(Categories[i],i);
+    // }
 
     return 0;
 }
@@ -98,7 +91,7 @@ void *publishersRoutine(void *args)
 
     int i;
     LLargs *insert_args = malloc(sizeof(LLargs));
-    if(insert_args == NULL)
+    if (insert_args == NULL)
     {
         printf("Fail to allocate memory at insert_args\n");
         exit(-1);
@@ -110,57 +103,125 @@ void *publishersRoutine(void *args)
         LLinsert(insert_args);
     }
 
-
-
-    // for (i = N; i < 2*N; i++)
-    // {
-    //     insert_args->list = list;
-    //     insert_args->postID = id + (i * 2 * N);
-    //     if(LLdelete(list , insert_args->postID))printf("delete for postID %d DONE\n" , insert_args->postID);
-    //     else printf("postID %d FAIL\n" , insert_args->postID);
-    // }
-
-
-
-
     pthread_barrier_wait(&barrier_1st_phase_end);
     if (((p_args *)args)->id == 0)
     {
         LLcounts(args);
     }
-    
-   pthread_barrier_wait(&barrier_2nd_phase_start);
 
+    pthread_barrier_wait(&barrier_2nd_phase_start);
 
     /*now they have to be admins*/
-   
-    
 
-    int category_id = ((p_args*)args)->id % (N/4);
+    int category_id = ((p_args *)args)->id % (N / 4);
     int postID_category;
 
-    for(i = 0 ; i < 2*N ; i++)
+    for (i = 0; i < 2 * N; i++)
     {
-        postID_category = id + i * 2*N ;
+        postID_category = id + (i * (2 * N));
 
-        if(LLdelete(list , postID_category) !=  EMPTY_QUEUE){
+        if (LLdelete(list, postID_category) != 0)
+        {
             enq(postID_category, Categories[category_id]);
             // printf("ENQ %d @ %d\n DONE\n" , postID_category , category_id);
-        }else{
-            printf("ENQ %d @ %d\n FAILED\n" , postID_category , category_id);
         }
-
-        if(LLdelete(list , postID_category + N) !=  EMPTY_QUEUE){
-            enq(postID_category+N, Categories[category_id]);
+        int exists = LLdelete(list, postID_category + N);
+        if (exists != 0)
+        {
+            enq(postID_category + N, Categories[category_id]);
             //  printf("ENQ %d @ %d\n DONE\n" , postID_category+N , category_id);
-        }else{
-            // printf("ENQ %d @ %d\n FAILED\n" , postID_category+N , category_id);
         }
     }
+
     pthread_barrier_wait(&barrier_2nd_phase_end);
+
+    if (id == 0)
+    {
+        Qcounts(N / 4, N, list);
+    }
 }
 
+void Qcounts(int categoriesSize, int N, struct SinglyLinkedList *list)
+{
 
+    int i;
+    int total_size_counter = 0;
+    int total_key_counts = 0;
+    int total_list_size = 0;
+    printf("-------------------PHASE B------------------\n");
+    for (i = 0; i < N / 4; i++)
+    {
+        struct queueNode *temp = Categories[i]->head;
+        total_size_counter = 0;
+        while (temp != NULL)
+        {
+            if (temp == Categories[i]->head)
+            {
+                temp = temp->next;
+                continue;
+            }
+            total_size_counter++;
+            total_key_counts += temp->postID;
+            temp = temp->next;
+        }
+
+        printf("Categories[%d] queue's total size counted (expected: %d, found: %d)", i, 8 * N, total_size_counter);
+        if (8 * N != total_size_counter)
+        {
+            printf("\033[0;31m");
+            printf("------->FAIL\n");
+            printf("\033[0m");
+            exit(1);
+        }
+        else
+        {
+            printf("\033[0;32m");
+            printf("--------->PASS\n");
+            printf("\033[0m");
+        }
+    }
+    printf("total keysum check counted(expected: (%d), found: %d)", 2 * N * N * N * N - N * N, total_key_counts);
+    if (2 * N * N * N * N - N * N != total_key_counts)
+    {
+        printf("\033[0;31m");
+        printf("------->FAIL\n");
+        printf("\033[0m");
+        exit(1);
+    }
+    else
+    {
+        printf("\033[0;32m");
+        printf("--------->PASS\n");
+        printf("\033[0m");
+    }
+
+    struct LLNode *listTemp = list->head;
+    while (listTemp->postID != NOT_INIT)
+    {
+        if (listTemp == list->head)
+            listTemp = listTemp->next;
+        else
+        {
+            total_list_size++;
+            listTemp = listTemp->next;
+        }
+    }
+
+    printf("list’s total size counted (expected: 0 , found: %d)", total_list_size);
+    if (total_list_size != 0)
+    {
+        printf("\033[0;31m");
+        printf("------->FAIL\n");
+        printf("\033[0m");
+        exit(1);
+    }
+    else
+    {
+        printf("\033[0;32m");
+        printf("--------->PASS\n");
+        printf("\033[0m");
+    }
+}
 
 /*Code to check insertions*/
 void *LLcounts(void *arg)
@@ -179,15 +240,16 @@ void *LLcounts(void *arg)
 
     int tempN = ((p_args *)arg)->N;
 
-    int expected_sum = 2 * (tempN * tempN*tempN * tempN) - (tempN * tempN);
+    int expected_sum = 2 * (tempN * tempN * tempN * tempN) - (tempN * tempN);
     int expected_count = 2 * (tempN * tempN);
 
     printf("-------------------PHASE A------------------\n");
     printf("total list size (expected : %d , found %d)\n", expected_count, counter);
-    printf("total keysum counted (expected : %d , found %d)\n", expected_sum , sum);
+    printf("total keysum counted (expected : %d , found %d)\n", expected_sum, sum);
 
-    if(expected_sum != sum || expected_count != counter){
-        fprintf(stderr , "Error \n ");
+    if (expected_sum != sum || expected_count != counter)
+    {
+        fprintf(stderr, "Error \n ");
         exit(-1);
     }
 }
