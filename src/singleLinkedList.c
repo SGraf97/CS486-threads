@@ -14,24 +14,15 @@ int validate(struct LLNode *pred, struct LLNode *curr)
         return 0;
 }
 
-int LLsearch(LLargs *args)
-{
 
-    struct LLNode *curr;
-    int result;
-    curr = args->list->head;
-    while (curr->postID < args->postID)
-        curr = curr->next;
-    if (curr->marked != 0 && args->postID == args->postID)
-        return 1;
-    else
-        return 0;
-}
 
 struct SinglyLinkedList *LLnewList()
 {
     struct SinglyLinkedList *new = malloc(sizeof(struct SinglyLinkedList));
-
+    if(new == NULL){
+        printf("Fail to allocate memory at newList\n");
+        exit(-1);
+    }
     new->head = LLnewNode(HEAD__);
     new->tail = LLnewNode(NOT_INIT);
 
@@ -67,14 +58,14 @@ void *LLinsert(void *args)
         {
             if (((LLargs *)args)->postID == curr->postID)
             {
-                printf("mala");
+                // printf("mala");
                 result = 0;
                 return_flag = 1;
             }
             else
             {
                 struct LLNode *new_node = LLnewNode(((LLargs *)args)->postID);
-                // struct LLNode *new_node = malloc(sizeof(struct LLNode));
+                
 
                 pred->next = new_node;
                 new_node->next = curr;
@@ -115,6 +106,10 @@ void LLprintList(struct SinglyLinkedList *list)
 struct LLNode *LLnewNode(int postID)
 {
     struct LLNode *temp = (struct LLNode *)malloc(sizeof(struct LLNode));
+    if(temp == NULL){
+        printf("Fail to allocate memory at LLnewNode\n");
+        exit(-1);
+    }
     pthread_mutex_init(&temp->lock, NULL);
     temp->postID = postID;
     temp->next = NULL;
@@ -158,4 +153,19 @@ int LLdelete (struct SinglyLinkedList *list, int postID)
         if (return_flag == 1)
             return result;
     }
+}
+
+
+int LLsearch(LLargs *args)
+{
+
+    struct LLNode *curr;
+    int result;
+    curr = args->list->head;
+    while (curr->postID > args->postID)
+        curr = curr->next;
+    if (curr->marked != 1 && args->postID == args->postID)
+        return 1;
+    else
+        return 0;
 }

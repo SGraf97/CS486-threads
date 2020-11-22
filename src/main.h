@@ -1,6 +1,6 @@
 #include "./singleLinkedList.h"
 #include <pthread.h>
-
+#include "UnboundedQueue.h"
 
 
 typedef struct PublishersInsertArguments{
@@ -9,6 +9,11 @@ typedef struct PublishersInsertArguments{
     int id;
 
 }p_args;
+
+
+
+struct queue **Categories;
+
 
 
 
