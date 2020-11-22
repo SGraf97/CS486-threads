@@ -12,4 +12,7 @@ typedef struct PublishersInsertArguments{
 
 
 
-void* publishersRoutine(void* args);
+void* publishersRoutine(void* args); 
+
+
+void* LLcounts(void* arg);
