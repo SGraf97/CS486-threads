@@ -31,15 +31,11 @@ int LLsearch(LLargs *args)
 struct SinglyLinkedList *LLnewList()
 {
     struct SinglyLinkedList *new = malloc(sizeof(struct SinglyLinkedList));
-    
-    
-    
+
     new->head = LLnewNode(HEAD__);
     new->tail = LLnewNode(NOT_INIT);
 
-    new->head->next = new->tail; 
-    
-
+    new->head->next = new->tail;
 
     return new;
 }
@@ -57,10 +53,9 @@ void *LLinsert(void *args)
         pred = ((LLargs *)args)->list->head;
         curr = pred->next;
 
-      
         while (curr->postID > ((LLargs *)args)->postID)
         {
-          
+
             pred = curr;
             curr = curr->next;
         }
@@ -68,7 +63,6 @@ void *LLinsert(void *args)
         pthread_mutex_lock(&pred->lock);
         pthread_mutex_lock(&curr->lock);
 
-       
         if (validate(pred, curr) == 1)
         {
             if (((LLargs *)args)->postID == curr->postID)
@@ -81,15 +75,15 @@ void *LLinsert(void *args)
             {
                 struct LLNode *new_node = LLnewNode(((LLargs *)args)->postID);
                 // struct LLNode *new_node = malloc(sizeof(struct LLNode));
-             
+
                 pred->next = new_node;
                 new_node->next = curr;
-                
+
                 // new_node->postID = ((LLargs*)args)->postID;
 
                 result = 1;
                 return_flag = 1;
-                
+
                 // pthread_mutex_unlock(&new_node->lock);
             }
         }
@@ -126,4 +120,42 @@ struct LLNode *LLnewNode(int postID)
     temp->next = NULL;
     temp->marked = 0;
     return temp;
+}
+
+
+
+
+int LLdelete (struct SinglyLinkedList *list, int postID)
+{
+    struct LLNode *pred, *curr;
+    int result;
+    int return_flag = 0;
+    while (1)
+    {
+        pred = list->head;
+        curr = pred->next;
+        while (curr->postID > postID)
+        {
+            pred = curr;
+            curr = curr->next;
+        }
+       pthread_mutex_lock(&pred->lock);
+       pthread_mutex_lock(&curr->lock);
+        if (validate(pred, curr))
+        {
+            if (postID == curr->postID)
+            {
+                curr->marked = 1;
+                pred->next = curr->next;
+                result = 1;
+            }
+            else
+                result =0;
+            return_flag = 1;
+        }
+       pthread_mutex_unlock(&pred->lock);
+       pthread_mutex_unlock(&curr->lock);
+        if (return_flag == 1)
+            return result;
+    }
 }

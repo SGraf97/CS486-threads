@@ -69,17 +69,19 @@ void *publishersRoutine(void *args)
         insert_args->postID = id + (i * 2 * N);
         LLinsert(insert_args);
     }
+    for (i = N; i < 2*N; i++)
+    {
+        insert_args->list = list;
+        insert_args->postID = id + (i * 2 * N);
+        if(LLdelete(list , insert_args->postID))printf("delete for postID %d DONE\n" , insert_args->postID);
+        else printf("postID %d FAIL\n" , insert_args->postID);
+    }
     pthread_barrier_wait(&barrier_1st_phase_end);
     if (((p_args *)args)->id == 0)
     {
-        // LLprintList(((p_args*)args)->list);
         LLcounts(args);
     }
-    else
-    {
-        // printf("ela\n");
-    }
-
+    
    pthread_barrier_wait(&barrier_2nd_phase_start);
 }
 
@@ -102,7 +104,7 @@ void *LLcounts(void *arg)
     int expected_sum = 2 * (tempN * tempN*tempN * tempN) - (tempN * tempN);
     int expected_count = 2 * (tempN * tempN);
 
-    printf("-------------------------------------\n");
+    printf("-------------------PHASE A------------------\n");
     printf("total list size (expected : %d , found %d)\n", expected_count, counter);
     printf("total keysum counted (expected : %d , found %d)\n", expected_sum , sum);
 
