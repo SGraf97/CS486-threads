@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     pthread_barrier_init(&barrier_1st_phase_end, NULL, publishers_s);
     pthread_barrier_init(&barrier_2nd_phase_start, NULL, publishers_s);
     pthread_barrier_init(&barrier_2nd_phase_end, NULL, publishers_s);
+    pthread_barrier_init(&barrier_3nd_phase_start, NULL, publishers_s);
 
     struct SinglyLinkedList *news = LLnewList();
 
@@ -111,25 +112,27 @@ void *publishersRoutine(void *args)
 
     pthread_barrier_wait(&barrier_2nd_phase_start);
 
-    /*now they have to be admins*/
 
-    int category_id = ((p_args *)args)->id % (N / 4);
-    int postID_category;
+    if(((p_args*)args)->id < N){
+        /*now they have to be admins*/
+        int category_id = ((p_args *)args)->id % (N / 4);
+        int postID_category;
 
-    for (i = 0; i < 2 * N; i++)
-    {
-        postID_category = id + (i * (2 * N));
-
-        if (LLdelete(list, postID_category) != 0)
+        for (i = 0; i < 2 * N; i++)
         {
-            enq(postID_category, Categories[category_id]);
-            // printf("ENQ %d @ %d\n DONE\n" , postID_category , category_id);
-        }
-        int exists = LLdelete(list, postID_category + N);
-        if (exists != 0)
-        {
-            enq(postID_category + N, Categories[category_id]);
-            //  printf("ENQ %d @ %d\n DONE\n" , postID_category+N , category_id);
+            postID_category = id + (i * (2 * N));
+
+            if (LLdelete(list, postID_category) != 0)
+            {
+                enq(postID_category, Categories[category_id]);
+                // printf("ENQ %d @ %d\n DONE\n" , postID_category , category_id);
+            }
+            int exists = LLdelete(list, postID_category + N);
+            if (exists != 0)
+            {
+                enq(postID_category + N, Categories[category_id]);
+                //  printf("ENQ %d @ %d\n DONE\n" , postID_category+N , category_id);
+            }
         }
     }
 
@@ -139,6 +142,12 @@ void *publishersRoutine(void *args)
     {
         Qcounts(N / 4, N, list);
     }
+    
+    pthread_barrier_wait(&barrier_3nd_phase_start);
+
+
+
+
 }
 
 void Qcounts(int categoriesSize, int N, struct SinglyLinkedList *list)

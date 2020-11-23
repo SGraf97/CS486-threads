@@ -11,7 +11,7 @@ int main(int argc, char const *argv[])
     for (i = 0; i < 1000; i++)
     {
         system("../bin/main.out 16 >> testlog");
-        system("cat testlog | grep Fail ");
+        system("cat testlog | grep -i Fail ");
     }
 
     return 0;
