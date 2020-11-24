@@ -39,7 +39,6 @@ void enq(int postID , struct queue *q)
 int deq(struct queue* q) 
 {
     int result;
-    // lock(HeadL);
     pthread_mutex_lock(&q->headLock);
     if (q->head->next == NULL)
         result = EMPTY_QUEUE;

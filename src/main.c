@@ -27,12 +27,13 @@ int main(int argc, char *argv[])
 
     pthread_t publishers[publishers_s];
 
-    pthread_barrier_init(&barrier_1st_phase_end, NULL, publishers_s);
-    pthread_barrier_init(&barrier_2nd_phase_start, NULL, publishers_s);
-    pthread_barrier_init(&barrier_2nd_phase_end, NULL, publishers_s);
-    pthread_barrier_init(&barrier_3nd_phase_start, NULL, publishers_s);
+    initBarriers(publishers_s);
 
     struct SinglyLinkedList *news = LLnewList();
+
+
+    root = newTree();
+
 
     //init Categories
     Categories = malloc(sizeof(struct queue) * (N / 4));
@@ -67,25 +68,20 @@ int main(int argc, char *argv[])
         pthread_create(&(publishers[j]), NULL, publishersRoutine, args);
     }
 
-    p_args *args = malloc(sizeof(p_args));
-    args->list = news;
+    // p_args *args = malloc(sizeof(p_args));
+    // args->list = news;
 
-    // pthread_create(&publishers[0] , NULL , LLcounts , args);
     for (i = 0; i < publishers_s; i++)
     {
-
         pthread_join(publishers[i], NULL);
     }
-
-    // for(i =0; i < N/4; i++){
-    //     printQueue(Categories[i],i);
-    // }
 
     return 0;
 }
 
 void *publishersRoutine(void *args)
 {
+
     int id = ((p_args *)args)->id;
     int N = ((p_args *)args)->N;
     struct SinglyLinkedList *list = ((p_args *)args)->list;
@@ -112,8 +108,8 @@ void *publishersRoutine(void *args)
 
     pthread_barrier_wait(&barrier_2nd_phase_start);
 
-
-    if(((p_args*)args)->id < N){
+    if (((p_args *)args)->id < N)
+    {
         /*now they have to be admins*/
         int category_id = ((p_args *)args)->id % (N / 4);
         int postID_category;
@@ -142,11 +138,41 @@ void *publishersRoutine(void *args)
     {
         Qcounts(N / 4, N, list);
     }
-    
+    // treeNode *root = newTree();
+
     pthread_barrier_wait(&barrier_3nd_phase_start);
 
 
+    // if (((p_args *)args)->id >= N)
+    if (((p_args *)args)->id == 0)
+    {
+        int category_id = ((p_args *)args)->id % (N / 4);
+        int HelperCounter = 0, treeCounter = 0;
+        int treeInsertPostID = deq(Categories[category_id]);
+        while (treeInsertPostID != EMPTY_QUEUE)
+        {
+            HelperCounter++;
+            // printf("mpika\n");  
+            if (Tinsert(treeInsertPostID, &root)){
+                treeCounter++;
+                if(&root == NULL ) printf("ROOT IS NULL\n");
+            }
+            treeInsertPostID = deq(Categories[category_id]);
+        }
 
+        // inorder(root);
+        printf("eimai edw gia na testarw ean exouyn mpei olla expected(%d) found %d\n" , HelperCounter , treeCounter);
+        printf("%d queue is EMPTY_QUEUE \n" , category_id);
+    }
+
+
+    pthread_barrier_wait(&barrier_3nd_phase_end);
+    if (((p_args *)args)->id == 0)
+    {
+       
+        Tcounts(&root, N);
+    }
+    pthread_barrier_wait(&barrier_4nd_phase_start);
 
 }
 
@@ -241,7 +267,6 @@ void *LLcounts(void *arg)
     int counter = 0, sum = 0;
     while (temp->postID != NOT_INIT)
     {
-
         sum += temp->postID;
         temp = temp->next;
         counter++;
@@ -261,4 +286,20 @@ void *LLcounts(void *arg)
         fprintf(stderr, "Error \n ");
         exit(-1);
     }
+}
+
+void Tcounts(treeNode *root, int N)
+{
+    int total_post_ids_tree = TCountIDs(root);
+    printf("eimai edw sto tree counts kai to counter einai = %d\n", total_post_ids_tree);
+}
+
+void initBarriers(int size)
+{
+    pthread_barrier_init(&barrier_1st_phase_end, NULL, size);
+    pthread_barrier_init(&barrier_2nd_phase_start, NULL, size);
+    pthread_barrier_init(&barrier_2nd_phase_end, NULL, size);
+    pthread_barrier_init(&barrier_3nd_phase_start, NULL, size);
+    pthread_barrier_init(&barrier_3nd_phase_end, NULL, size);
+    pthread_barrier_init(&barrier_4nd_phase_start, NULL, size);
 }
