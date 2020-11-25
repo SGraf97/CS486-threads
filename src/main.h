@@ -13,8 +13,7 @@ pthread_barrier_t barrier_3nd_phase_start;
 pthread_barrier_t barrier_3nd_phase_end;
 pthread_barrier_t barrier_4nd_phase_start;
 
-
-treeNode root;
+tree* Tree ;
 
 typedef struct PublishersInsertArguments{
     struct SinglyLinkedList* list;

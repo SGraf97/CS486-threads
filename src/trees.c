@@ -1,39 +1,47 @@
 #include "trees.h"
-
-treeNode newTree()
+tree *newTree()
 {
-    // treeNode *new = malloc(sizeof(treeNode));
-    // new->lc = NULL;
-    // new->rc = NULL;
-    // new->postID = 0;
-    // pthread_mutex_init(&new->lock, NULL);
+    treeNode *new = malloc(sizeof(treeNode));
+    new->lc = NULL;
+    new->rc = NULL;
+    new->postID = -1;
+    pthread_mutex_init(&new->lock, NULL);
 
-    treeNode newP;
-    pthread_mutex_init(&newP.lock, NULL);
-    newP.postID = -1;
+    // treeNode newP;
+    // pthread_mutex_init(&newP.lock, NULL);
+    // newP.postID = -1;
+    
 
-    return newP;
+    tree * newTree = malloc(sizeof(tree));
+    newTree->root = malloc(sizeof(treeNode));
+    newTree->root->lc = NULL;
+    newTree->root->rc = NULL;
+    newTree->root->postID = -1;
+    newTree->root->IsLeftThreaded = 1;
+    newTree->root->IsRightThreaded = 1;
+    pthread_mutex_init(&newTree->root->lock , NULL);
+    return newTree;
 }
 
-int Tinsert(int postID, treeNode *root)
+int Tinsert(int postID, tree *Tree)
 {
-    pthread_mutex_lock(&root->lock);
-    treeNode *iterator, *parrent = root;
+    // pthread_mutex_lock(&root->lock);
+    treeNode *iterator = NULL, *parrent = Tree->root;
 
-    if (postID > parrent->postID)
-    {
-        iterator = parrent->rc;
-    }
-    else if (postID == parrent->postID)
-    {
-        return 0;
-    }
-    else
-    {
-        iterator = parrent->lc;
-    }
-    if (iterator != NULL)
-        pthread_mutex_lock(&iterator->lock);
+    // if (postID > parrent->postID)
+    // {
+    //     iterator = parrent->rc;
+    // }
+    // else if (postID == parrent->postID)
+    // {
+    //     return 0;
+    // }
+    // else
+    // {
+    //     iterator = parrent->lc;
+    // }
+    // if (iterator != NULL)
+    //     pthread_mutex_lock(&iterator->lock);
     // iterator = root;
 
     int return_val = 1;
@@ -41,14 +49,16 @@ int Tinsert(int postID, treeNode *root)
     while (iterator != NULL)
     {
 
-        pthread_mutex_unlock(&parrent->lock);
+        // pthread_mutex_unlock(&parrent->lock);
 
         if (iterator->postID == postID)
         {
             // pthread_mutex_unlock(&iterator->lock);
             return_val = 0;
             printf("FOUND dup key %d\n", postID);
+            return 0;
             break;
+
         }
         parrent = iterator;
         // pthread_mutex_lock(&iterator->lock);
@@ -79,30 +89,34 @@ int Tinsert(int postID, treeNode *root)
                 break;
             }
         }
-        pthread_mutex_lock(&iterator->lock);
+        // pthread_mutex_lock(&iterator->lock);
     }
+
     treeNode *temp = TnewNode(postID);
-    if (return_val)
-    {
+
+    // if (return_val)
+    // {
         if (parrent->postID == -1)
         {
-            root = temp;
-            if (root == NULL)
+            Tree->root = temp;
+            if (Tree->root == NULL)
                 printf("BAD?\n");
             else
                 printf("GOOD\n");
-            pthread_mutex_unlock(&root->lock);
+            // pthread_mutex_unlock(&root->lock);
+            return 1;
             return_val = 1;
         }
         else if (postID < parrent->postID)
         {
+            
             // treeNode *temp = TnewNode(postID);
             temp->lc = parrent->lc;
             temp->rc = parrent;
             parrent->lc = temp;
             parrent->IsLeftThreaded = 0;
             // pthread_mutex_unlock(&parrent->lock);
-            pthread_mutex_unlock(&iterator->lock);
+            // pthread_mutex_unlock(&iterator->lock);
             return_val = 1;
         }
         else
@@ -114,12 +128,12 @@ int Tinsert(int postID, treeNode *root)
             parrent->rc = temp;
             parrent->IsRightThreaded = 0;
             // pthread_mutex_unlock(&parrent->lock);
-            pthread_mutex_unlock(&iterator->lock);
+            // pthread_mutex_unlock(&iterator->lock);
             return_val = 1;
         }
-    }
+    
 
-    pthread_mutex_unlock(&parrent->lock);
+    // pthread_mutex_unlock(&parrent->lock);
 
     return return_val;
 }
@@ -158,8 +172,9 @@ treeNode *inorderSuccessor(treeNode *ptr)
 
     // Else return leftmost child of rc subtree
     ptr = ptr->rc;
-    while (ptr->IsLeftThreaded == 1)
+    while (ptr->IsLeftThreaded == 0){
         ptr = ptr->lc;
+    }
     return ptr;
 }
 
@@ -167,17 +182,22 @@ treeNode *inorderSuccessor(treeNode *ptr)
 int TCountIDs(treeNode *root)
 {
     int counter = 0;
-    if (root == NULL)
+    if (root == NULL){
         printf("Tree is empty");
+        return 0;
+    }
 
     // Reach leftmost node
     treeNode *ptr = root;
-    while (ptr->IsLeftThreaded == 0)
+    while (ptr->IsLeftThreaded == 0){
         ptr = ptr->lc;
+    }
 
     // One by one print successors
     while (ptr != NULL)
     {
+        
+        printf("eee -> %d\n" , ptr->postID);
         counter++;
         ptr = inorderSuccessor(ptr);
     }

@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
     struct SinglyLinkedList *news = LLnewList();
 
 
-    root = newTree();
-
+    // root = newTree();
+    Tree = newTree();
 
     //init Categories
     Categories = malloc(sizeof(struct queue) * (N / 4));
@@ -152,10 +152,11 @@ void *publishersRoutine(void *args)
         while (treeInsertPostID != EMPTY_QUEUE)
         {
             HelperCounter++;
+                printf("(einai to root poost id -> %d) , %d auto poy mpainei\n" , Tree->root->postID , treeInsertPostID);
             // printf("mpika\n");  
-            if (Tinsert(treeInsertPostID, &root)){
+            if (Tinsert(treeInsertPostID, Tree)){
                 treeCounter++;
-                if(&root == NULL ) printf("ROOT IS NULL\n");
+                if(Tree->root == NULL ) printf("ROOT IS NULL\n");
             }
             treeInsertPostID = deq(Categories[category_id]);
         }
@@ -170,7 +171,7 @@ void *publishersRoutine(void *args)
     if (((p_args *)args)->id == 0)
     {
        
-        Tcounts(&root, N);
+        Tcounts(Tree->root, N);
     }
     pthread_barrier_wait(&barrier_4nd_phase_start);
 

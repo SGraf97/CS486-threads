@@ -17,12 +17,19 @@ typedef struct treeNode {
 
 
 
-int Tinsert(int postID, treeNode *root);
+typedef struct tree {
+    treeNode* root;
+    int counter;
+}tree;
+
+int Tinsert(int postID, tree *Tree);
 
 
 treeNode *TnewNode(int postID);
+
+
 int TCountIDs( treeNode *root) ;
 
-treeNode newTree();
+tree *newTree();
 
 void inorder( treeNode *root) ;

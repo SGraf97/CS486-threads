@@ -15,7 +15,7 @@ allDB:
 	gcc  -lpthread -g UnboundedQueue.c -c  -o ../bin/queue.o  
 	gcc  -lpthread -g trees.c -c -o ../bin/trees.o
 	gcc  -lpthread -g -o ../bin/main.out ../bin/main.o ../bin/singleLinkedList.o ../bin/queue.o ../bin/trees.o
-
+	gdb ../bin/main.out
 
 tester: all
 	gcc tester.c -o ../bin/tester
