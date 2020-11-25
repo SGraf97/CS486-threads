@@ -143,8 +143,8 @@ void *publishersRoutine(void *args)
     pthread_barrier_wait(&barrier_3nd_phase_start);
 
 
-    // if (((p_args *)args)->id >= N)
-    if (((p_args *)args)->id == 0)
+    if (((p_args *)args)->id >= N)
+    // if (((p_args *)args)->id == 0)
     {
         int category_id = ((p_args *)args)->id % (N / 4);
         int HelperCounter = 0, treeCounter = 0;
@@ -152,7 +152,7 @@ void *publishersRoutine(void *args)
         while (treeInsertPostID != EMPTY_QUEUE)
         {
             HelperCounter++;
-                printf("(einai to root poost id -> %d) , %d auto poy mpainei\n" , Tree->root->postID , treeInsertPostID);
+                // printf("(einai to root poost id -> %d) , %d auto poy mpainei\n" , Tree->root->postID , treeInsertPostID);
             // printf("mpika\n");  
             if (Tinsert(treeInsertPostID, Tree)){
                 treeCounter++;
@@ -162,15 +162,15 @@ void *publishersRoutine(void *args)
         }
 
         // inorder(root);
-        printf("eimai edw gia na testarw ean exouyn mpei olla expected(%d) found %d\n" , HelperCounter , treeCounter);
-        printf("%d queue is EMPTY_QUEUE \n" , category_id);
+        // printf("eimai edw gia na testarw ean exouyn mpei olla expected(%d) found %d\n" , HelperCounter , treeCounter);
+        // printf("%d queue is EMPTY_QUEUE \n" , category_id);
+       //printf("mpika edw!\n");
     }
 
-
+     printf("mpika edw!\n");
     pthread_barrier_wait(&barrier_3nd_phase_end);
     if (((p_args *)args)->id == 0)
     {
-       
         Tcounts(Tree->root, N);
     }
     pthread_barrier_wait(&barrier_4nd_phase_start);

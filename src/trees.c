@@ -27,46 +27,51 @@ int Tinsert(int postID, tree *Tree)
 {
     // pthread_mutex_lock(&root->lock);
     treeNode *iterator = NULL, *parrent = Tree->root;
-
-    // if (postID > parrent->postID)
-    // {
-    //     iterator = parrent->rc;
-    // }
-    // else if (postID == parrent->postID)
-    // {
-    //     return 0;
-    // }
-    // else
-    // {
-    //     iterator = parrent->lc;
-    // }
-    // if (iterator != NULL)
-    //     pthread_mutex_lock(&iterator->lock);
-    // iterator = root;
-
+    printf("locking tree1\n");
+    pthread_mutex_lock(&Tree->root->lock);
+    if (postID > parrent->postID)
+    {
+        iterator = parrent->rc;
+    }
+    else if (postID == parrent->postID)
+    {
+        printf("locking tree2\n");
+        pthread_mutex_unlock(&Tree->root->lock);
+        return 0;
+    }
+    else
+    {
+        iterator = parrent->lc;
+    }
+    if (iterator != NULL){
+        pthread_mutex_lock(&iterator->lock);
+        printf("iteratoir -> %d\n\n\n\n" , iterator->postID);
+    }
+    // iterator = Tree->root;
     int return_val = 1;
 
     while (iterator != NULL)
     {
 
-        // pthread_mutex_unlock(&parrent->lock);
-
         if (iterator->postID == postID)
         {
-            // pthread_mutex_unlock(&iterator->lock);
             return_val = 0;
             printf("FOUND dup key %d\n", postID);
+            pthread_mutex_unlock(&iterator->lock);
             return 0;
             break;
 
         }
-        parrent = iterator;
+        
         // pthread_mutex_lock(&iterator->lock);
 
         if (postID < iterator->postID)
         {
             if (iterator->IsLeftThreaded == 0)
             {
+                pthread_mutex_unlock(&iterator->lock);
+                parrent = iterator;
+                pthread_mutex_lock(&parrent->lock);
                 iterator = iterator->lc;
 
                 // continue;
@@ -74,6 +79,7 @@ int Tinsert(int postID, tree *Tree)
             else
             {
                 // pthread_mutex_lock(&iterator->lock);
+                printf("THA KANW BREAK\n");
                 break;
             }
         }
@@ -81,16 +87,22 @@ int Tinsert(int postID, tree *Tree)
         {
             if (iterator->IsRightThreaded == 0)
             {
+                pthread_mutex_unlock(&iterator->lock);
+                parrent = iterator;
+                pthread_mutex_lock(&parrent->lock);
                 iterator = iterator->rc;
             }
             else
             {
                 // pthread_mutex_lock(&iterator->lock);
+                printf("THA KANW BREAK\n");
                 break;
             }
         }
-        // pthread_mutex_lock(&iterator->lock);
+        pthread_mutex_lock(&iterator->lock);
     }
+
+    printf("FOasdsadasdaas\n");
 
     treeNode *temp = TnewNode(postID);
 
@@ -103,7 +115,7 @@ int Tinsert(int postID, tree *Tree)
                 printf("BAD?\n");
             else
                 printf("GOOD\n");
-            // pthread_mutex_unlock(&root->lock);
+            pthread_mutex_unlock(&Tree->root->lock);
             return 1;
             return_val = 1;
         }
@@ -115,8 +127,9 @@ int Tinsert(int postID, tree *Tree)
             temp->rc = parrent;
             parrent->lc = temp;
             parrent->IsLeftThreaded = 0;
-            // pthread_mutex_unlock(&parrent->lock);
-            // pthread_mutex_unlock(&iterator->lock);
+            //  pthread_mutex_unlock(&parrent->lock);
+            //  if(iterator != NULL)
+            //      pthread_mutex_unlock(&iterator->lock);
             return_val = 1;
         }
         else
@@ -127,14 +140,25 @@ int Tinsert(int postID, tree *Tree)
 
             parrent->rc = temp;
             parrent->IsRightThreaded = 0;
-            // pthread_mutex_unlock(&parrent->lock);
-            // pthread_mutex_unlock(&iterator->lock);
+            //  pthread_mutex_unlock(&parrent->lock);
+            //  if(iterator !=  NULL)
+            //      pthread_mutex_unlock(&iterator->lock);
             return_val = 1;
         }
+
+         printf("FOasdsadasdaas22222\n");
     
-
-    // pthread_mutex_unlock(&parrent->lock);
-
+    if(iterator != NULL)
+        pthread_mutex_unlock(&iterator->lock);
+    if(parrent != Tree->root)
+        pthread_mutex_unlock(&parrent->lock);
+    else
+    {
+        printf("locking tree3\n");
+        pthread_mutex_unlock(&Tree->root->lock);
+        //pthread_mutex_unlock(&parrent->lock);
+    }
+    
     return return_val;
 }
 
