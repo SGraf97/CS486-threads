@@ -143,8 +143,8 @@ void *publishersRoutine(void *args)
     pthread_barrier_wait(&barrier_3nd_phase_start);
 
 
-    // if (((p_args *)args)->id >= N)
-    if (((p_args *)args)->id == 0)
+    if (((p_args *)args)->id >= N)
+    // if (((p_args *)args)->id == 0)
     {
         int category_id = ((p_args *)args)->id % (N / 4);
         int HelperCounter = 0, treeCounter = 0;
