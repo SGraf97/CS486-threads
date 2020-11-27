@@ -26,7 +26,7 @@ tree *newTree()
 int Tinsert(int postID, tree *Tree)
 {
     // pthread_mutex_lock(&root->lock);
-    treeNode *iterator = NULL, *parrent = Tree->root;
+    treeNode *iterator = Tree->root, *parrent = Tree->root;
 
     // if (postID > parrent->postID)
     // {
