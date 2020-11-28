@@ -10,7 +10,8 @@ int main(int argc, char const *argv[])
     system("rm -rf ./testlog");
     for (i = 0; i < 1000; i++)
     {
-        system("../bin/main.out 4 >> testlog");
+        system("../bin/main.out 8 >> testlog");
+        printf("Done:%d\n" , i);
         system("cat testlog | grep -i Fail ");
     }
 

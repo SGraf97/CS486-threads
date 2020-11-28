@@ -62,8 +62,10 @@ int Tinsert(int postID, tree *Tree)
             return 0;
             break;
         }
-        pthread_mutex_unlock(&parrent->lock);
-        parrent = iterator;
+        if(parrent->postID != -1 && parrent != iterator){
+            pthread_mutex_unlock(&parrent->lock);
+            parrent = iterator;
+        }
         // pthread_mutex_lock(&iterator->lock);
 
         if (postID < iterator->postID)
