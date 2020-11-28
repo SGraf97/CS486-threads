@@ -48,8 +48,6 @@ int Tinsert(int postID, tree *Tree)
     while (iterator != NULL)
     {
 
-        // pthread_mutex_unlock(&parrent->lock);
-
         if (iterator->postID == postID)
         {
             if (parrent != iterator)
@@ -59,6 +57,7 @@ int Tinsert(int postID, tree *Tree)
             pthread_mutex_unlock(&iterator->lock);
             return_val = 0;
             printf("FOUND dup key %d\n", postID);
+            pthread_mutex_unlock(&iterator->lock);
             return 0;
             break;
         }
@@ -72,6 +71,9 @@ int Tinsert(int postID, tree *Tree)
         {
             if (iterator->IsLeftThreaded == 0)
             {
+                pthread_mutex_unlock(&iterator->lock);
+                parrent = iterator;
+                pthread_mutex_lock(&parrent->lock);
                 iterator = iterator->lc;
 
                 // continue;
@@ -79,6 +81,7 @@ int Tinsert(int postID, tree *Tree)
             else
             {
                 // pthread_mutex_lock(&iterator->lock);
+                printf("THA KANW BREAK\n");
                 break;
             }
         }
@@ -86,16 +89,22 @@ int Tinsert(int postID, tree *Tree)
         {
             if (iterator->IsRightThreaded == 0)
             {
+                pthread_mutex_unlock(&iterator->lock);
+                parrent = iterator;
+                pthread_mutex_lock(&parrent->lock);
                 iterator = iterator->rc;
             }
             else
             {
                 // pthread_mutex_lock(&iterator->lock);
+                printf("THA KANW BREAK\n");
                 break;
             }
         }
         pthread_mutex_lock(&iterator->lock);
     }
+
+    printf("FOasdsadasdaas\n");
 
     treeNode *temp = TnewNode(postID);
 
