@@ -169,14 +169,14 @@ void *publishersRoutine(void *args)
 
     pthread_barrier_wait(&barrier_3nd_phase_end);
     if (((p_args *)args)->id == 0)
-    {
-       
+    { 
         Tcounts(Tree->root, N);
     }
     pthread_barrier_wait(&barrier_4nd_phase_start);
 
 }
 
+/*Code to check insertions*/
 void Qcounts(int categoriesSize, int N, struct SinglyLinkedList *list)
 {
 
@@ -259,7 +259,6 @@ void Qcounts(int categoriesSize, int N, struct SinglyLinkedList *list)
     }
 }
 
-/*Code to check insertions*/
 void *LLcounts(void *arg)
 {
     struct SinglyLinkedList *list = ((p_args *)arg)->list;
