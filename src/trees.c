@@ -27,7 +27,6 @@ int Tinsert(int postID, tree *Tree)
     pthread_mutex_lock(&Tree->root->lock);
     treeNode *iterator = Tree->root, *parrent = Tree->root;
 
-  
     int return_val = 1;
 
     while (iterator != NULL)
@@ -35,10 +34,8 @@ int Tinsert(int postID, tree *Tree)
 
         if (iterator->postID == postID)
         {
-            if (parrent != iterator)
-            {
-            }
-                pthread_mutex_unlock(&parrent->lock);
+            
+            pthread_mutex_unlock(&parrent->lock);
             // pthread_mutex_unlock(&iterator->lock);
             return_val = 0;
             printf("FOUND dup key %d\n", postID);
@@ -198,4 +195,69 @@ int TCountIDs(treeNode *root)
         ptr = inorderSuccessor(ptr);
     }
     return counter;
+}
+
+
+
+
+
+int Tsearch(int postID, tree *Tree){
+    treeNode* parrent , *iterator;
+    pthread_mutex_lock(&Tree->root->lock);
+    parrent = Tree->root;
+    iterator = Tree->root;
+    int res = 0;
+
+     while (iterator != NULL)
+    {
+
+        if (iterator->postID == postID)
+        {
+            pthread_mutex_unlock(&parrent->lock);
+            pthread_mutex_unlock(&iterator->lock);
+            // return_val = 0;
+            res  = 1;
+            return 1;
+            break;
+        }
+        
+      
+        pthread_mutex_unlock(&parrent->lock);
+        parrent = iterator;
+        
+       
+
+        if (postID < iterator->postID)
+        {
+            if (iterator->IsLeftThreaded == 0)
+            {
+                iterator = iterator->lc;
+                // continue;
+            }
+            else
+            {
+                break;
+            }
+        }
+        else if (postID > iterator->postID)
+        {
+            if (iterator->IsRightThreaded == 0)
+            {
+                iterator = iterator->rc;
+                // continue;
+            }
+            else
+            {
+                
+                break;
+            }
+        }
+        pthread_mutex_lock(&iterator->lock);
+    }
+    pthread_mutex_unlock(&parrent->lock);
+    return res;
+}
+
+int Tdelete(int postID, tree *Tree){
+
 }

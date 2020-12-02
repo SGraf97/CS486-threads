@@ -33,3 +33,6 @@ int TCountIDs( treeNode *root) ;
 tree *newTree();
 
 void inorder( treeNode *root) ;
+
+
+int Tsearch(int postID, tree *Tree);

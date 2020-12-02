@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
 
     struct SinglyLinkedList *news = LLnewList();
 
-
     // root = newTree();
     Tree = newTree();
 
@@ -127,7 +126,6 @@ void *publishersRoutine(void *args)
             if (exists != 0)
             {
                 enq(postID_category + N, Categories[category_id]);
-                //  printf("ENQ %d @ %d\n DONE\n" , postID_category+N , category_id);
             }
         }
     }
@@ -142,38 +140,53 @@ void *publishersRoutine(void *args)
 
     pthread_barrier_wait(&barrier_3nd_phase_start);
 
-
     if (((p_args *)args)->id >= N)
-    // if (((p_args *)args)->id == 0)
     {
+
         int category_id = ((p_args *)args)->id % (N / 4);
         int HelperCounter = 0, treeCounter = 0;
-        int treeInsertPostID = deq(Categories[category_id]);
-        while (treeInsertPostID != EMPTY_QUEUE)
+        int treeInsertPostID = 0;
+        int index = 0;
+        while (index < N)
         {
-            HelperCounter++;
-                printf("(einai to root poost id -> %d) , %d auto poy mpainei\n" , Tree->root->postID , treeInsertPostID);
-            // printf("mpika\n");  
-            if (Tinsert(treeInsertPostID, Tree)){
-                treeCounter++;
-                if(Tree->root == NULL ) printf("ROOT IS NULL\n");
-            }
             treeInsertPostID = deq(Categories[category_id]);
+            HelperCounter++;
+            if (Tinsert(treeInsertPostID, Tree))
+            {
+                treeCounter++;
+                if (Tree->root == NULL)
+                    printf("ROOT IS NULL\n");
+            }
+            index++;
         }
-
-        // inorder(root);
-        printf("eimai edw gia na testarw ean exouyn mpei olla expected(%d) found %d\n" , HelperCounter , treeCounter);
-        printf("%d queue is EMPTY_QUEUE \n" , category_id);
     }
-
 
     pthread_barrier_wait(&barrier_3nd_phase_end);
-    if (((p_args *)args)->id == 0)
-    { 
+
+    if (((p_args *)args)->id == N)
+    {
         Tcounts(Tree->root, N);
     }
+
     pthread_barrier_wait(&barrier_4nd_phase_start);
 
+    if (((p_args *)args)->id >= N)
+    {
+        //search if postId is in treee
+        int temp_counter = 0;
+        for (int i = 0; i < N * N * N; i++)
+        {
+            // printf("%d --- %d\n" , i , Tsearch(i , Tree));
+            if (Tsearch(i, Tree) == 1)
+            {
+                temp_counter++;
+            }
+        }
+        printf("o temp_xounter ==  %d\n", temp_counter);
+        //delete it for the tree
+
+        //insert it to queue
+    }
 }
 
 /*Code to check insertions*/
@@ -290,8 +303,57 @@ void *LLcounts(void *arg)
 
 void Tcounts(treeNode *root, int N)
 {
+    int i;
+    int total_size_counter = 0;
+    int total_key_counts = 0;
+    int total_list_size = 0;
+    printf("-------------------PHASE C------------------\n");
     int total_post_ids_tree = TCountIDs(root);
-    printf("eimai edw sto tree counts kai to counter einai = %d\n", total_post_ids_tree);
+    printf("tree’s total size finished (expected: %d, found: %d )", N * N, total_post_ids_tree);
+    if (total_post_ids_tree != (N * N))
+    {
+        printf("\033[0;31m");
+        printf("------->FAIL\n");
+        printf("\033[0m");
+        exit(-1);
+    }
+    else
+    {
+        printf("\033[0;32m");
+        printf("--------->PASS\n");
+        printf("\033[0m");
+    }
+    for (i = 0; i < N / 4; i++)
+    {
+        struct queueNode *temp = Categories[i]->head;
+        total_size_counter = 0;
+        while (temp != NULL)
+        {
+            if (temp == Categories[i]->head)
+            {
+                temp = temp->next;
+                continue;
+            }
+            total_size_counter++;
+            total_key_counts += temp->postID;
+            temp = temp->next;
+        }
+
+        printf("Categories[%d] queue's total size counted (expected: %d, found: %d)", i, 4 * N, total_size_counter);
+        if (4 * N != total_size_counter)
+        {
+            printf("\033[0;31m");
+            printf("------->FAIL\n");
+            printf("\033[0m");
+            exit(1);
+        }
+        else
+        {
+            printf("\033[0;32m");
+            printf("--------->PASS\n");
+            printf("\033[0m");
+        }
+    }
 }
 
 void initBarriers(int size)
