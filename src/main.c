@@ -134,6 +134,7 @@ void *publishersRoutine(void *args)
 
     if (id == 0)
     {
+        printf("-------------------PHASE B------------------\n");
         Qcounts(N / 4, N, list);
     }
     // treeNode *root = newTree();
@@ -173,19 +174,29 @@ void *publishersRoutine(void *args)
     if (((p_args *)args)->id >= N)
     {
         //search if postId is in treee
+        int postID_category = id + (i * (2 * N));
+        int category_id = ((p_args *)args)->id % (N / 4);
         int temp_counter = 0;
-        for (int i = 0; i < N * N * N; i++)
+        for (int i = 0; i < N; i++)
         {
-            // printf("%d --- %d\n" , i , Tsearch(i , Tree));
-            if (Tsearch(i, Tree) == 1)
+            int indexing = id + (i * N*N);
+            if (Tsearch(indexing, Tree) == 1)
             {
-                temp_counter++;
+               enq(indexing, Categories[category_id]);
             }
+            if (Tsearch(indexing + N, Tree) == 1)
+            {
+                enq(indexing+N, Categories[category_id]);
+            }
+            
         }
-        printf("o temp_xounter ==  %d\n", temp_counter);
-        //delete it for the tree
-
-        //insert it to queue
+        
+    }
+    pthread_barrier_wait(&barrier_4nd_phase_end);
+    if (id == 0)
+    {
+        printf("-------------------PHASE D------------------\n");
+        Qcounts(N / 4, N, list);
     }
 }
 
@@ -197,7 +208,7 @@ void Qcounts(int categoriesSize, int N, struct SinglyLinkedList *list)
     int total_size_counter = 0;
     int total_key_counts = 0;
     int total_list_size = 0;
-    printf("-------------------PHASE B------------------\n");
+    
     for (i = 0; i < N / 4; i++)
     {
         struct queueNode *temp = Categories[i]->head;
@@ -364,4 +375,5 @@ void initBarriers(int size)
     pthread_barrier_init(&barrier_3nd_phase_start, NULL, size);
     pthread_barrier_init(&barrier_3nd_phase_end, NULL, size);
     pthread_barrier_init(&barrier_4nd_phase_start, NULL, size);
+    pthread_barrier_init(&barrier_4nd_phase_end, NULL, size);
 }

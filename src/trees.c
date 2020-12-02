@@ -34,7 +34,7 @@ int Tinsert(int postID, tree *Tree)
 
         if (iterator->postID == postID)
         {
-            
+
             pthread_mutex_unlock(&parrent->lock);
             // pthread_mutex_unlock(&iterator->lock);
             return_val = 0;
@@ -42,12 +42,12 @@ int Tinsert(int postID, tree *Tree)
             return 0;
             break;
         }
-        
-        if(parrent->postID != -1 && parrent != iterator){
+
+        if (parrent->postID != -1 && parrent != iterator)
+        {
             pthread_mutex_unlock(&parrent->lock);
             parrent = iterator;
         }
-       
 
         if (postID < iterator->postID)
         {
@@ -70,7 +70,7 @@ int Tinsert(int postID, tree *Tree)
             }
             else
             {
-                
+
                 break;
             }
         }
@@ -113,17 +113,16 @@ int Tinsert(int postID, tree *Tree)
 
         parrent->rc = temp;
         parrent->IsRightThreaded = 0;
-      
+
         return_val = 1;
     }
 
-    if(iterator != NULL){
+    if (iterator != NULL)
+    {
         // pthread_mutex_unlock(&iterator->lock);
     }
 
     pthread_mutex_unlock(&parrent->lock);
-   
-
 
     return return_val;
 }
@@ -197,18 +196,15 @@ int TCountIDs(treeNode *root)
     return counter;
 }
 
-
-
-
-
-int Tsearch(int postID, tree *Tree){
-    treeNode* parrent , *iterator;
+int Tsearch(int postID, tree *Tree)
+{
+    treeNode *parrent, *iterator;
     pthread_mutex_lock(&Tree->root->lock);
     parrent = Tree->root;
     iterator = Tree->root;
     int res = 0;
 
-     while (iterator != NULL)
+    while (iterator != NULL)
     {
 
         if (iterator->postID == postID)
@@ -216,16 +212,14 @@ int Tsearch(int postID, tree *Tree){
             pthread_mutex_unlock(&parrent->lock);
             pthread_mutex_unlock(&iterator->lock);
             // return_val = 0;
-            res  = 1;
+            res = 1;
+
             return 1;
             break;
         }
-        
-      
+
         pthread_mutex_unlock(&parrent->lock);
         parrent = iterator;
-        
-       
 
         if (postID < iterator->postID)
         {
@@ -248,16 +242,14 @@ int Tsearch(int postID, tree *Tree){
             }
             else
             {
-                
                 break;
             }
         }
         pthread_mutex_lock(&iterator->lock);
     }
+
+  
+  
     pthread_mutex_unlock(&parrent->lock);
     return res;
-}
-
-int Tdelete(int postID, tree *Tree){
-
 }

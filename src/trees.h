@@ -36,3 +36,5 @@ void inorder( treeNode *root) ;
 
 
 int Tsearch(int postID, tree *Tree);
+
+int Tdelete(int postID, tree *Tree);
